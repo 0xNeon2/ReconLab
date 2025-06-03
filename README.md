@@ -106,7 +106,6 @@ ReconLab is a **web application** that unifies powerful open-source tools into a
 | Execution | Python `subprocess`, Bash |
 | Reports   | Plain `.txt` files |
 
-> ⚠️ No session or database management — all in-memory operations with downloadable outputs.
 
 ---
 
