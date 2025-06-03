@@ -119,7 +119,7 @@ ReconLab is a **web application** that unifies powerful open-source tools into a
 
 
 # Clone the repo
-git clone https://github.com/yourusername/ReconLab.git
+git clone https://github.com/0xNeon2/ReconLab.git
 cd ReconLab
 
 # Install dependencies
