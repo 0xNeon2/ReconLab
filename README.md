@@ -92,12 +92,7 @@
 git clone https://github.com/0xNeon2/ReconLab.git
 cd ReconLab
 
-# Backend Setup
-cd backend
-pip install -r requirements.txt
-python run.py
-
 # Frontend Setup
-cd ../frontend
+cd ReconLab
 npm install
 npm run dev
