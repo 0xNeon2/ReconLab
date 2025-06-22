@@ -56,12 +56,7 @@
 
 ## 🖼️ Screenshots
 
-> 🚧 (You can insert actual screenshots or demo GIFs here)
-
-- 🔐 Login Page UI
-- 🧪 Terminal Output Simulation
-- 🧭 Animated Sidebar
-- 📜 Sample Report Output
+will be added soon..
 
 ---
 
