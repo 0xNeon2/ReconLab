@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Target, Play, Square, Download, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Target, Play, Square, Download, AlertCircle, Save } from 'lucide-react';
 
 const ParameterDiscovery: React.FC = () => {
   const [domain, setDomain] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState('');
   const [scanId, setScanId] = useState<string | null>(null);
+  const [isStoring, setIsStoring] = useState(false);
+  const [isStored, setIsStored] = useState(false);
+  const { currentUser } = useAuth();
 
   const handleRun = async () => {
     if (!domain.trim()) return;
@@ -21,9 +25,9 @@ const ParameterDiscovery: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tool: 'paramspider',
+          tool: 'arjun',
           target: domain,
-          command: `python3 paramspider.py --domain ${domain}`
+          command: `arjun -u ${domain}`
         }),
       });
 
@@ -43,11 +47,20 @@ const ParameterDiscovery: React.FC = () => {
     try {
       const response = await fetch(`http://localhost:8000/api/result/${id}`);
       const data = await response.json();
-      
+
       if (data.output) {
-        setOutput(data.output);
+        // Filter out 'Processing chunks' lines
+        let filteredOutput = data.output
+          .split('\n')
+          .filter(line => !line.includes('Processing chunks'))
+          .join('\n');
+
+        // Remove ANSI escape codes
+        filteredOutput = filteredOutput.replace(/\x1b\[[0-9;]*m/g, '');
+
+        setOutput(filteredOutput);
       }
-      
+
       if (data.status === 'completed') {
         setIsRunning(false);
       } else if (data.status === 'running') {
@@ -76,6 +89,79 @@ const ParameterDiscovery: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleStore = async () => {
+    if (!scanId || !output) return;
+    
+    setIsStoring(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/store-result', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          scan_id: scanId,
+          user_id: currentUser?.uid || '',
+          title: `Parameter Discovery - ${domain}`
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsStored(true);
+        alert(`Scan result stored successfully: ${data.title}`);
+      } else {
+        alert('Failed to store scan result');
+      }
+    } catch (error) {
+      console.error('Error storing result:', error);
+      alert('Error storing scan result');
+    } finally {
+      setIsStoring(false);
+    }
+  };
+
+  // Beautify output with color-coded lines
+  const renderOutput = (rawOutput: string) => {
+    if (!rawOutput) return null;
+
+    return rawOutput.split('\n').map((line, i) => {
+      let style = {};
+      let cleanedLine = line;
+
+      // Warnings in orange bold
+      if (line.toLowerCase().includes('warning') || line.toLowerCase().includes('warn')) {
+        style = { color: 'black', fontWeight: 'bold' };
+      }
+      // Success messages in green bold
+      else if (line.toLowerCase().includes('parameters found')) {
+        style = { color: 'green', fontWeight: 'bold' };
+      }
+      // Info messages starting with [*]
+      else if (line.startsWith('[*]')) {
+        style = { color: 'black' };
+        cleanedLine = line.replace(/^\[\*\]\s*/, '');
+      }
+      // Heuristic scanner results in yellowgreen bold
+      else if (line.toLowerCase().includes('heuristic scanner found')) {
+        style = { color: 'green', fontWeight: 'bold' };
+      }
+      // Others: soft green text
+      else {
+        style = { color: 'black' };
+      }
+
+      // Remove other special markers like [+], [!]
+      cleanedLine = cleanedLine.replace(/^\[[+!]\]\s*/, '');
+
+      return (
+        <div key={i} style={style}>
+          {cleanedLine}
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
@@ -85,7 +171,7 @@ const ParameterDiscovery: React.FC = () => {
         </div>
         <div>
           <h1 className="text-3xl font-bold text-white">Parameter Discovery</h1>
-          <p className="text-gray-400">Discover URL parameters using ParamSpider</p>
+          <p className="text-gray-400">Discover URL parameters using Arjun</p>
         </div>
       </div>
 
@@ -135,6 +221,18 @@ const ParameterDiscovery: React.FC = () => {
               <Download className="w-4 h-4 mr-2" />
               Download
             </button>
+            <button
+              onClick={handleStore}
+              disabled={!output || isStoring || isStored}
+              className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                isStored 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-secondary hover:bg-secondary/80 text-white'
+              }`}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isStoring ? 'Storing...' : isStored ? 'Stored' : 'Store'}
+            </button>
           </div>
         </div>
       </div>
@@ -147,7 +245,7 @@ const ParameterDiscovery: React.FC = () => {
             <h4 className="text-orange-400 font-medium mb-1">Command Info</h4>
             <p className="text-sm text-gray-300">
               Running: <code className="bg-dark-700 px-2 py-1 rounded text-primary font-mono">
-                python3 paramspider.py --domain {domain || 'domain'}
+                arjun -u {domain || 'domain'}
               </code>
             </p>
           </div>
@@ -163,19 +261,20 @@ const ParameterDiscovery: React.FC = () => {
           )}
         </div>
         <div className="p-4">
-          <div className="bg-dark-950 rounded-lg p-4 min-h-[400px] max-h-[600px] overflow-y-auto">
-            <pre className="text-green-400 font-mono text-sm whitespace-pre-wrap">
-              {output || (
-                <span className="text-gray-500">
-                  Output will appear here when you run a scan...
-                  {isRunning && (
-                    <span className="animate-pulse">
-                      {'\n'}Scanning...
-                    </span>
-                  )}
-                </span>
-              )}
-            </pre>
+          <div
+            className="bg-dark-950 rounded-lg p-4 min-h-[400px] max-h-[600px] overflow-y-auto font-mono text-sm"
+            style={{ whiteSpace: 'pre-line' }}
+          >
+            {output ? renderOutput(output) : (
+              <span className="text-gray-500">
+                Output will appear here when you run a scan...
+                {isRunning && (
+                  <span className="animate-pulse">
+                    {'\n'}Scanning...
+                  </span>
+                )}
+              </span>
+            )}
           </div>
         </div>
       </div>
