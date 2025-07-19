@@ -20,7 +20,7 @@ const AIChat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState<AISettings>({
     provider: 'openrouter',
-    apiKey: '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'
+    apiKey: 'YOUR API KEY'
   });
   const [showSettings, setShowSettings] = useState(false);
   const [context, setContext] = useState('');
