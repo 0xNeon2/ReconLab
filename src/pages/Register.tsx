@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 import { Shield, Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
-//import { useAuth } from '../context/AuthContext';
 
-const Register = () => {
+const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,7 +16,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  //const { register } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +46,7 @@ const Register = () => {
     try {
       const success = await register(formData.email, formData.password, formData.name);
       if (success) {
-        navigate('/login');
+        navigate('/dashboard');
       } else {
         setError('Registration failed');
       }
@@ -74,7 +74,7 @@ const Register = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2 mb-4">
-            <Shield className="w-10 h-10 text-green-400" />
+            <Shield className="w-10 h-10 text-primary" />
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">ReconLab</span>
           </Link>
           <p className="text-gray-400">Join the elite security community</p>
@@ -192,11 +192,11 @@ const Register = () => {
               type="submit"
               disabled={isLoading}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-3 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-400 hover:to-green-500 focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02]"
+              className="w-full py-3 px-4 bg-gradient-to-r from-primary to-secondary text-dark-900 font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/25 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02]"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-dark-900 border-t-transparent rounded-full animate-spin"></div>
                   <span>Creating Account...</span>
                 </div>
               ) : (
@@ -209,7 +209,7 @@ const Register = () => {
           <div className="text-center mt-6">
             <p className="text-gray-400">
               Already have an account?{' '}
-              <Link to="/login" className="text-green-400 hover:text-green-300 font-medium transition-colors">
+              <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
                 Sign in here
               </Link>
             </p>
