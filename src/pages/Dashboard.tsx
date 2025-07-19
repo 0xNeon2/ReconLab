@@ -8,11 +8,10 @@ import CMSScanner from '../components/modules/CMSScanner';
 import FirewallDetection from '../components/modules/FirewallDetection';
 import NmapScanning from '../components/modules/NmapScanning';
 import Dorking from '../components/modules/Dorking';
-import SubdomainTakeover from '../components/modules/SubdomainTakeover';
-import OpenRedirect from '../components/modules/OpenRedirect';
 import Notes from '../components/modules/Notes';
 import VulnerabilityChecklist from '../components/modules/VulnerabilityChecklist';
 import Reports from '../components/modules/Reports';
+import AIChat from '../components/modules/AIChat';
 import DashboardHome from '../components/DashboardHome';
 
 const Dashboard: React.FC = () => {
@@ -35,11 +34,10 @@ const Dashboard: React.FC = () => {
             <Route path="/firewall-detection" element={<FirewallDetection />} />
             <Route path="/nmap-scanning" element={<NmapScanning />} />
             <Route path="/dorking" element={<Dorking />} />
-            <Route path="/subdomain-takeover" element={<SubdomainTakeover />} />
-            <Route path="/open-redirect" element={<OpenRedirect />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/vulnerability-checklist" element={<VulnerabilityChecklist />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/ai-chat" element={<AIChat />} />
           </Routes>
         </main>
       </div>
