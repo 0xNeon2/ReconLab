@@ -146,6 +146,7 @@ Follow these instructions to set up and run ReconLab on your local machine.
 5.  Click the "trash" icon to delete a stored report from your database.
 
 ## 📂 Project Structure
+```bash
 reconlab/
 ├── backend/                  # FastAPI backend application
 │   ├── main.py               # Main FastAPI application and API endpoints
@@ -187,7 +188,7 @@ reconlab/
 ├── vite.config.ts            # Vite build configuration
 ├── tailwind.config.js        # Tailwind CSS configuration
 └── postcss.config.js         # PostCSS configuration
-
+```
 
 
 ## 🤝 Contributing
