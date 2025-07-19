@@ -99,6 +99,6 @@ sudo systemctl start mongod
 # Backend setup
 cd backend
 pip install -r requirements.txt
-python3 main.py
+sudo python3 main.py
 
 
