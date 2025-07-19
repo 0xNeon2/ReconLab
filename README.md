@@ -68,7 +68,7 @@ will be added soon..
 | **Backend**  | Python + FastAPI             |
 | **Command Execution** | `subprocess` (non-blocking)      |
 | **Database** | MongoDB  |
-| **Authentication** | firebase  |
+| **Authentication** | Firebase  |
 | **Output Handling** | Real-time polling per scan ID     |
 
 ---
