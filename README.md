@@ -1,6 +1,6 @@
 # ReconLab - Cybersecurity Reconnaissance Framework
 
-![ReconLab Logo](https://raw.githubusercontent.com/your-repo/your-image-folder/main/reconlab-logo.png) 
+![ReconLab Logo](src/images/logo1.png) 
 
 ReconLab is a comprehensive, AI-powered cybersecurity reconnaissance framework designed for bug hunters and security professionals. It integrates industry-standard tools with advanced features to streamline your information gathering, vulnerability assessment, and reporting workflows.
 
