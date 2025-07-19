@@ -1,40 +1,71 @@
 import React, { useState } from 'react';
-import { Shield, Play, Square, Download, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Shield, Play, Square, Download, AlertCircle, Save } from 'lucide-react';
+
+const cleanCMSOutput = (raw: string) => {
+  let cleaned = raw
+    // Remove ANSI escape codes
+    .replace(/\x1b\[[0-9;]*m/g, '')
+    // Remove screen clear sequences
+    .replace(/\x1b\[[0-9;]*[A-Z]/g, '')
+    // Remove CMSeeK banners and branding
+    .replace(/_{3,}[\s\S]*?by @r3dhax0r[\s\S]*?Version.*?K-RONA/g, '')
+    .replace(/CMSeeK says ~ Fir milenge/g, '')
+    .replace(/\[\+\]  CMS Detection And Deep Scan  \[\]/g, '')
+    .replace(/\[\+\]  Deep Scan Results  \[\]/g, '')
+    // Trim extra newlines
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  // Highlight the summary block
+  const summaryStart = cleaned.indexOf('┏━Target:');
+  const summaryEnd = cleaned.lastIndexOf('Requests');
+  if (summaryStart !== -1 && summaryEnd !== -1) {
+    const endPos = summaryEnd + 'Requests'.length;
+    const before = cleaned.slice(0, summaryStart);
+    const highlight = cleaned.slice(summaryStart, endPos);
+    const after = cleaned.slice(endPos);
+    cleaned = `${before}<HIGHLIGHT>${highlight}</HIGHLIGHT>${after}`;
+  }
+
+  return cleaned;
+};
 
 const CMSScanner: React.FC = () => {
   const [url, setUrl] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState('');
-  const [scanId, setScanId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isStoring, setIsStoring] = useState(false);
+  const [isStored, setIsStored] = useState(false);
+  const { currentUser } = useAuth();
 
   const handleRun = async () => {
     if (!url.trim()) return;
-    
+
     setIsRunning(true);
-    setScanId(`cms_${Date.now()}`);
-    setOutput('Starting CMS scan...\n');
+    setOutput(`Starting CMSeek scan on ${url}...\n`);
 
     try {
-      const response = await fetch('http://localhost:8000/api/run-tool', {
+      const res = await fetch('http://localhost:8000/api/run-tool', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tool: 'wpscan',
+          tool: 'cmseek',
           target: url,
-          command: `wpscan --url ${url}`
+          command: `cmseek`,
         }),
       });
 
-      const data = await response.json();
-      
-      if (data.scan_id) {
-        setScanId(data.scan_id);
-        pollResults(data.scan_id);
-      }
+      const data = await res.json();
+      const sid = data.scan_id;
+      setSessionId(sid);
+
+      setTimeout(() => {
+        pollResults(sid);
+      }, 10000);
     } catch (error) {
-      setOutput(prev => prev + `Error: ${error}\n`);
+      setOutput((prev) => prev + `Error starting scan: ${error}\n`);
       setIsRunning(false);
     }
   };
@@ -43,37 +74,87 @@ const CMSScanner: React.FC = () => {
     try {
       const response = await fetch(`http://localhost:8000/api/result/${id}`);
       const data = await response.json();
-      
+
       if (data.output) {
-        setOutput(data.output);
+        const cleaned = cleanCMSOutput(data.output);
+        setOutput((prev) => prev + '\nScan Output:\n' + cleaned);
       }
-      
-      if (data.status === 'completed') {
+
+      if (data.status !== 'running') {
         setIsRunning(false);
-      } else if (data.status === 'running') {
-        setTimeout(() => pollResults(id), 2000);
+      } else {
+        setTimeout(() => pollResults(id), 3000);
       }
     } catch (error) {
-      setOutput(prev => prev + `Error polling results: ${error}\n`);
+      setOutput((prev) => prev + `Error fetching results: ${error}\n`);
       setIsRunning(false);
     }
   };
 
   const handleStop = () => {
     setIsRunning(false);
-    setOutput(prev => prev + '\nScan stopped by user.\n');
+    setOutput((prev) => prev + '\nScan stopped by user.\n');
   };
 
   const handleDownload = () => {
     if (!output) return;
-    
-    const blob = new Blob([output], { type: 'text/plain' });
+
+    const blob = new Blob([output.replace(/<HIGHLIGHT>|<\/HIGHLIGHT>/g, '')], {
+      type: 'text/plain',
+    });
     const downloadUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = downloadUrl;
-    a.download = `cms_scan_${url.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.txt`;
+    a.download = `cmseek_${url.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(downloadUrl);
+  };
+
+  const handleStore = async () => {
+    if (!sessionId || !output) return;
+    
+    setIsStoring(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/store-result', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          scan_id: sessionId,
+          user_id: currentUser?.uid || '',
+          title: `CMS Scanner - ${url}`
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsStored(true);
+        alert(`Scan result stored successfully: ${data.title}`);
+      } else {
+        alert('Failed to store scan result');
+      }
+    } catch (error) {
+      console.error('Error storing result:', error);
+      alert('Error storing scan result');
+    } finally {
+      setIsStoring(false);
+    }
+  };
+
+  const renderOutput = (text: string) => {
+    return text.split('<HIGHLIGHT>').map((chunk, i) =>
+      i % 2 === 1 ? (
+        <span
+          key={i}
+          className="text-red-500 bg-purple-900/20 shadow-[0_0_10px_#a855f7] px-2 py-1 rounded-lg block my-2 whitespace-pre-wrap"
+        >
+          {chunk}
+        </span>
+      ) : (
+        <span key={i}>{chunk}</span>
+      )
+    );
   };
 
   return (
@@ -85,7 +166,7 @@ const CMSScanner: React.FC = () => {
         </div>
         <div>
           <h1 className="text-3xl font-bold text-white">CMS Scanner</h1>
-          <p className="text-gray-400">Scan WordPress sites using WPScan</p>
+          <p className="text-gray-400">Scan websites using CMSeek interactively</p>
         </div>
       </div>
 
@@ -135,6 +216,18 @@ const CMSScanner: React.FC = () => {
               <Download className="w-4 h-4 mr-2" />
               Download
             </button>
+            <button
+              onClick={handleStore}
+              disabled={!output || isStoring || isStored}
+              className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                isStored 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-secondary hover:bg-secondary/80 text-white'
+              }`}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isStoring ? 'Storing...' : isStored ? 'Stored' : 'Store'}
+            </button>
           </div>
         </div>
       </div>
@@ -147,7 +240,7 @@ const CMSScanner: React.FC = () => {
             <h4 className="text-green-400 font-medium mb-1">Command Info</h4>
             <p className="text-sm text-gray-300">
               Running: <code className="bg-dark-700 px-2 py-1 rounded text-primary font-mono">
-                wpscan --url {url || 'URL'}
+                cmseek → {url}
               </code>
             </p>
           </div>
@@ -158,21 +251,17 @@ const CMSScanner: React.FC = () => {
       <div className="bg-dark-800/50 rounded-xl border border-dark-700">
         <div className="p-4 border-b border-dark-700">
           <h3 className="text-lg font-semibold text-white">Output</h3>
-          {scanId && (
-            <p className="text-sm text-gray-400">Scan ID: {scanId}</p>
+          {sessionId && (
+            <p className="text-sm text-gray-400">Session ID: {sessionId}</p>
           )}
         </div>
         <div className="p-4">
           <div className="bg-dark-950 rounded-lg p-4 min-h-[400px] max-h-[600px] overflow-y-auto">
             <pre className="text-green-400 font-mono text-sm whitespace-pre-wrap">
-              {output || (
+              {output ? renderOutput(output) : (
                 <span className="text-gray-500">
                   Output will appear here when you run a scan...
-                  {isRunning && (
-                    <span className="animate-pulse">
-                      {'\n'}Scanning...
-                    </span>
-                  )}
+                  {isRunning && <span className="animate-pulse">{'\n'}Scanning...</span>}
                 </span>
               )}
             </pre>
