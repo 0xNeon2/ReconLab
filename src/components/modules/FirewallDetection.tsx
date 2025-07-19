@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Eye, Play, Square, Download, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { Eye, Play, Square, Download, AlertCircle, Save } from 'lucide-react';
 
 const FirewallDetection: React.FC = () => {
   const [url, setUrl] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState('');
   const [scanId, setScanId] = useState<string | null>(null);
+  const [isStoring, setIsStoring] = useState(false);
+  const [isStored, setIsStored] = useState(false);
+  const { currentUser } = useAuth();
 
   const handleRun = async () => {
     if (!url.trim()) return;
@@ -76,6 +80,38 @@ const FirewallDetection: React.FC = () => {
     URL.revokeObjectURL(downloadUrl);
   };
 
+  const handleStore = async () => {
+    if (!scanId || !output) return;
+    
+    setIsStoring(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/store-result', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          scan_id: scanId,
+          user_id: currentUser?.uid || '',
+          title: `Firewall Detection - ${url}`
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsStored(true);
+        alert(`Scan result stored successfully: ${data.title}`);
+      } else {
+        alert('Failed to store scan result');
+      }
+    } catch (error) {
+      console.error('Error storing result:', error);
+      alert('Error storing scan result');
+    } finally {
+      setIsStoring(false);
+    }
+  };
+
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Header */}
@@ -134,6 +170,18 @@ const FirewallDetection: React.FC = () => {
             >
               <Download className="w-4 h-4 mr-2" />
               Download
+            </button>
+            <button
+              onClick={handleStore}
+              disabled={!output || isStoring || isStored}
+              className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                isStored 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-secondary hover:bg-secondary/80 text-white'
+              }`}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isStoring ? 'Storing...' : isStored ? 'Stored' : 'Store'}
             </button>
           </div>
         </div>
