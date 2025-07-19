@@ -197,4 +197,4 @@ Contributions are welcome! If you have suggestions, bug reports, or want to cont
 
 ## 📄 License
 
-This project is licensed under the [MIT License](ReconLab/LICENSE).
+This project is licensed under the [MIT License](LICENSE).
