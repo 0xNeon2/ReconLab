@@ -41,13 +41,13 @@
 | Feature                    | Description                                                                 |
 |----------------------------|-----------------------------------------------------------------------------|
 | 🛰️ **Subdomain Enumeration** | Run `subfinder` via POST request and see results in real-time                |
-| 🧪 **Endpoint Discovery**   | Uses `ffuf` with wordlists to detect hidden directories                     |
-| 🔍 **Parameter Discovery**  | Integrated with `paramspider` to extract dynamic GET parameters             |
-| 🧱 **CMS Scanner**          | Uses `wpscan` to detect CMS and plugins                                     |
+| 🧪 **Endpoint Discovery**   | Uses `dirsearch` with wordlists to detect hidden directories                     |
+| 🔍 **Parameter Discovery**  | Integrated with `arjun` to extract dynamic GET parameters             |
+| 🧱 **CMS Scanner**          | Uses `cmseek` to detect CMS and plugins                                     |
 | 🔥 **Firewall Detection**   | Uses `wafw00f` to detect Web Application Firewalls                          |
-| 🛰️ **Nmap Scanning**        | 10 predefined scan types (e.g. Top Ports, Aggressive, Full TCP, etc.)       |
+| 🛰️ **Nmap Scanning**        | 8 predefined scan types (e.g. Top Ports, Aggressive, Full TCP, etc.)        |
 | 🔎 **Dorking Module**       | Includes pre-defined Google dorks + large GitHub dork DB                    |
-| ⚠️ **Vulnerability Checks** | Includes: Subdomain Takeover, Open Redirect, LFI, XSS, SQLi (via scripts)   |
+| 🔎 **AI Assistence**       | For smoother journey with AI suggestion                    |
 | 📝 **Notes**                | Write/save in-session notes, downloadable as `.txt`                         |
 | ✅ **Checklist**            | Dynamic checklist with completion tracking and custom entries               |
 | 📊 **Reports**              | All module outputs are auto-saved, downloadable, and trackable              |
@@ -67,7 +67,7 @@ will be added soon..
 | **Frontend** | React + TailwindCSS + Framer Motion |
 | **Backend**  | Python + FastAPI             |
 | **Command Execution** | `subprocess` (non-blocking)      |
-| **Persistence** | Local File System (report storage) |
+| **Database** | MongoDB  |
 | **Output Handling** | Real-time polling per scan ID     |
 
 ---
@@ -78,7 +78,7 @@ will be added soon..
 - Python 3.8+
 - Linux (Ubuntu/Debian preferred)
 - Node.js 16+
-- All CLI tools (`subfinder`, `ffuf`, `nmap`, `wpscan`, etc.)
+- All CLI tools (`subfinder`, `dirsearch`, `nmap`, `arjun`, etc.)
 
 ### 📦 Setup
 
