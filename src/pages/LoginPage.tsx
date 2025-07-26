@@ -47,7 +47,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-950 via-dark-900 to-dark-800 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-blue-900/50 to-dark-800 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -62,7 +62,7 @@ const LoginPage: React.FC = () => {
         </div>
 
         {/* Login Form */}
-        <div className="bg-dark-800/50 backdrop-blur-lg rounded-2xl border border-dark-700 p-8 shadow-2xl">
+        <div className="bg-dark-900/20 backdrop-blur-lg rounded-2xl border border-dark-700 p-8 shadow-2xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
             <p className="text-gray-400">Sign in to your ReconLab account</p>
@@ -171,12 +171,12 @@ const LoginPage: React.FC = () => {
           </form>
 
           {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-primary/10 rounded-lg border border-primary/20">
+          {/* <div className="mt-6 p-4 bg-primary/10 rounded-lg border border-primary/20">
             <p className="text-xs text-primary text-center mb-2">Demo Mode:</p>
             <p className="text-xs text-gray-300 text-center">
               Create an account or use any email/password combination for demo purposes
             </p>
-          </div>
+          </div> */}
 
           {/* Register Link */}
           <div className="mt-6 text-center">
