@@ -145,51 +145,6 @@ Follow these instructions to set up and run ReconLab on your local machine.
 4.  Click the "download" icon to save the report as a text file.
 5.  Click the "trash" icon to delete a stored report from your database.
 
-## 📂 Project Structure
-```bash
-reconlab/
-├── backend/                  # FastAPI backend application
-│   ├── main.py               # Main FastAPI application and API endpoints
-│   ├── requirements.txt      # Python dependencies
-│   └── outputs/              # Directory for tool outputs (e.g., dirsearch results)
-├── src/                      # React frontend application
-│   ├── App.tsx               # Main application component and routing
-│   ├── main.tsx              # Entry point for React app
-│   ├── index.css             # Tailwind CSS imports
-│   ├── firebase/             # Firebase configuration
-│   │   └── config.ts         # Firebase project settings
-│   ├── context/              # React Context for global state (e.g., AuthContext)
-│   │   └── AuthContext.tsx
-│   ├── pages/                # Top-level page components
-│   │   ├── LandingPage.tsx
-│   │   ├── LoginPage.tsx
-│   │   ├── Register.tsx
-│   │   └── Dashboard.tsx
-│   └── components/           # Reusable UI components
-│       ├── Sidebar.tsx
-│       ├── ProtectedRoute.tsx
-│       ├── DashboardHome.tsx
-│       └── modules/          # Individual security tool modules
-│           ├── AIChat.tsx
-│           ├── CMSScanner.tsx
-│           ├── Dorking.tsx
-│           ├── EndpointDiscovery.tsx
-│           ├── FirewallDetection.tsx
-│           ├── NmapScanning.tsx
-│           ├── Notes.tsx
-│           ├── ParameterDiscovery.tsx
-│           ├── Reports.tsx
-│           ├── SubdomainEnumeration.tsx
-│           └── VulnerabilityChecklist.tsx
-├── public/                   # Static assets
-├── index.html                # Main HTML file
-├── package.json              # Frontend dependencies and scripts
-├── tsconfig.json             # TypeScript configuration
-├── vite.config.ts            # Vite build configuration
-├── tailwind.config.js        # Tailwind CSS configuration
-└── postcss.config.js         # PostCSS configuration
-```
-
 
 ## 🤝 Contributing
 
